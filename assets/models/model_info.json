@@ -1,0 +1,74 @@
+{
+  "main_model": {
+    "file": "plant_model.tflite",
+    "variant": "M5 QAT int8 (10 epochs) \u2014 MobileNetV2 alpha 0.35, 96x96",
+    "input": {
+      "shape": [
+        1,
+        96,
+        96,
+        3
+      ],
+      "dtype": "uint8",
+      "quantization_scale_zero_point": "read from the model at runtime (approx. scale 1.0, zero point 0)",
+      "content": "RGB pixels 0-255, NO normalization (it is inside the model)"
+    },
+    "output": {
+      "shape": [
+        1,
+        19
+      ],
+      "dtype": "float32",
+      "content": "probabilities, in the order of classes.json -> class_names"
+    },
+    "preprocessing": [
+      "apply EXIF orientation",
+      "center square crop",
+      "resize to 96x96 (bilinear/average)",
+      "keep RGB"
+    ],
+    "postprocessing": [
+      "keep only the classes of the selected plant (classes.json -> plant_of_class)",
+      "renormalize and sort -> top-3",
+      "if top-1 < threshold (start 0.60) -> 'diagnostic incertain'"
+    ],
+    "test_accuracy": 0.9515,
+    "test_accuracy_plant_filtered": 0.959,
+    "size_kb": 634,
+    "size_zip_kb": 452
+  },
+  "backup_model": {
+    "file": "plant_model_backup_float_input.tflite",
+    "variant": "M3b PTQ dynamic range",
+    "input": {
+      "shape": [
+        1,
+        96,
+        96,
+        3
+      ],
+      "dtype": "float32",
+      "content": "RGB pixels 0-255 as float, NO normalization"
+    },
+    "output": {
+      "shape": [
+        1,
+        19
+      ],
+      "dtype": "float32",
+      "content": "probabilities, in the order of classes.json"
+    },
+    "test_accuracy": 0.9464,
+    "test_accuracy_plant_filtered": 0.9565,
+    "size_kb": 554,
+    "size_zip_kb": 449
+  },
+  "image_size": 96,
+  "num_classes": 19,
+  "plants": [
+    "Tomato",
+    "Potato",
+    "Apple",
+    "Peach"
+  ]
+}
